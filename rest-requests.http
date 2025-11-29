@@ -1,0 +1,131 @@
+@baseUrl = http://localhost:8080
+@computingUrl = http://localhost:8081
+
+### Send a single notification (Email)
+POST {{baseUrl}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "recipient": "user@example.com",
+  "subject": "Test Email Notification",
+  "message": "This is a test email notification message",
+  "notificationType": "Email",
+  "priority": "Normal"
+}
+
+### Send a single notification (SMS)
+POST {{baseUrl}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "recipient": "+1234567890",
+  "message": "This is a test SMS notification message",
+  "notificationType": "Sms",
+  "priority": "High"
+}
+
+### Send a single notification (Push)
+POST {{baseUrl}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "recipient": "device_token_123",
+  "subject": "Push Notification",
+  "message": "This is a test push notification message",
+  "notificationType": "Push",
+  "priority": "Normal"
+}
+
+### Get notification status
+GET {{baseUrl}}/api/notifications/12345
+
+### Send bulk notifications
+POST {{baseUrl}}/api/notifications/send-bulk
+Content-Type: application/json
+
+[
+  {
+    "recipient": "user1@example.com",
+    "subject": "Bulk Email 1",
+    "message": "This is the first bulk email notification",
+    "notificationType": "Email",
+    "priority": "Normal"
+  },
+  {
+    "recipient": "user2@example.com",
+    "subject": "Bulk Email 2",
+    "message": "This is the second bulk email notification",
+    "notificationType": "Email",
+    "priority": "Normal"
+  }
+]
+
+### Execute a computing task
+POST {{computingUrl}}/api/computing/execute
+Content-Type: application/json
+
+{
+  "taskId": "task-123",
+  "operation": "add",
+  "parameters": [5, 3]
+}
+
+### Execute a computing task with calculate endpoint
+POST {{computingUrl}}/api/computing/calculate
+Content-Type: application/json
+
+{
+  "operation": "multiply",
+  "x": 10,
+  "y": 5
+}
+
+### Get computing task result
+GET {{computingUrl}}/api/computing/result/123e4567-e89b-12d3-a456-426614174000
+
+### Get computing task status
+GET {{computingUrl}}/api/computing/status/123e4567-e89b-12d3-a456-426614174000
+
+### Send notification with attachments
+POST {{baseUrl}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "recipient": "user@example.com",
+  "subject": "Email with Attachment",
+  "message": "Please find the attached document",
+  "notificationType": "Email",
+  "priority": "Normal",
+  "attachments": [
+    {
+      "fileName": "document.pdf",
+      "contentType": "application/pdf",
+      "data": []
+    }
+  ]
+}
+
+### Send scheduled notification
+POST {{baseUrl}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "recipient": "user@example.com",
+  "subject": "Scheduled Notification",
+  "message": "This is a scheduled notification",
+  "notificationType": "Email",
+  "priority": "Normal",
+  "scheduledTime": "2023-12-31T10:00:00Z"
+}
+
+### Send high priority notification
+POST {{baseUrl}}/api/notifications/send
+Content-Type: application/json
+
+{
+  "recipient": "user@example.com",
+  "subject": "Urgent Notification",
+  "message": "This is an urgent notification requiring immediate attention",
+  "notificationType": "Email",
+  "priority": "Critical"
+}

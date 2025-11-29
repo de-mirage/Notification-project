@@ -1,0 +1,12 @@
+D:\UrFU\C# Microservices\src\NotificationService.Models\bin\Debug\net8.0\NotificationService.Models.deps.json
+D:\UrFU\C# Microservices\src\NotificationService.Models\bin\Debug\net8.0\NotificationService.Models.dll
+D:\UrFU\C# Microservices\src\NotificationService.Models\bin\Debug\net8.0\NotificationService.Models.pdb
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\NotificationService.Models.csproj.AssemblyReference.cache
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\NotificationService.Models.GeneratedMSBuildEditorConfig.editorconfig
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\NotificationService.Models.AssemblyInfoInputs.cache
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\NotificationService.Models.AssemblyInfo.cs
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\NotificationService.Models.csproj.CoreCompileInputs.cache
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\NotificationService.Models.dll
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\refint\NotificationService.Models.dll
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\NotificationService.Models.pdb
+D:\UrFU\C# Microservices\src\NotificationService.Models\obj\Debug\net8.0\ref\NotificationService.Models.dll

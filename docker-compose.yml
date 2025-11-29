@@ -1,0 +1,197 @@
+services:
+  # Infrastructure
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: NotificationServiceDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - notification_network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - notification_network
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - notification_network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - notification_network
+
+  # Application Services
+  notification-gateway:
+    build:
+      context: .
+      dockerfile: src/NotificationGateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=NotificationServiceDb;Username=postgres;Password=postgres
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__Port=5672
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - notification_network
+
+  router-service:
+    build:
+      context: .
+      dockerfile: src/RouterService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - notification_network
+
+  email-service:
+    build:
+      context: .
+      dockerfile: src/EmailService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=NotificationServiceDb;Username=postgres;Password=postgres
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__Port=5672
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - notification_network
+
+  sms-service:
+    build:
+      context: .
+      dockerfile: src/SmsService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=NotificationServiceDb;Username=postgres;Password=postgres
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__Port=5672
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - notification_network
+
+  push-service:
+    build:
+      context: .
+      dockerfile: src/PushService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=NotificationServiceDb;Username=postgres;Password=postgres
+      - RabbitMq__HostName=rabbitmq
+      - RabbitMq__Port=5672
+      - RabbitMq__UserName=guest
+      - RabbitMq__Password=guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - notification_network
+
+  status-api:
+    build:
+      context: .
+      dockerfile: src/StatusApi/Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=NotificationServiceDb;Username=postgres;Password=postgres
+    depends_on:
+      - postgres
+    networks:
+      - notification_network
+
+  computing-service:
+    build:
+      context: .
+      dockerfile: src/ComputingService/Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - Orleans__ClusterId=dev
+      - Orleans__ServiceId=ComputingService
+    networks:
+      - notification_network
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  notification_network:
+    driver: bridge

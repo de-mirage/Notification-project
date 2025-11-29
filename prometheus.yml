@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'notification-gateway'
+    static_configs:
+      - targets: ['notification-gateway:80']
+        
+  - job_name: 'computing-service'
+    static_configs:
+      - targets: ['computing-service:80']
+        
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
